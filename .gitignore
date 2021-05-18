@@ -144,3 +144,7 @@ cython_debug/
 
 .xml
 .idea
+.DS_Store
+*main.
+!main.tex
+!main.pdf
