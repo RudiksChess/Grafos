@@ -1,0 +1,83 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[top = 2.5cm, bottom = 2.5cm, left = 2.5cm, right = 2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow} 
+\usepackage{booktabs} 
+\usepackage{graphics}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{mwe}
+\usepackage[spanish]{babel}
+\usepackage{setspace}
+\setlength{\parindent}{0in}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{etoolbox}
+\usepackage{apalike}
+\usepackage{minibox}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\AtBeginEnvironment{align}{\setcounter{equation}{0}}
+\newenvironment{solution}
+  {\renewcommand\qedsymbol{$\square$}\begin{proof}[\textcolor{blue}{Solución}]}
+  {\end{proof}}
+
+\pagestyle{fancy}
+
+\fancyhf{}
+
+\lhead{\footnotesize Algoritmos y Estructuras de Datos}
+\rhead{\footnotesize  Rudik Roberto Rompich}
+\cfoot{\footnotesize \thepage}
+
+\begin{document}
+    \thispagestyle{empty} 
+    \begin{tabular}{p{15.5cm}}
+    \begin{tabbing}
+    \textbf{Universidad del Valle de Guatemala} \\
+    Departamento de Matemática\\
+    Licenciatura en Matemática Aplicada\\\\
+   \textbf{Estudiante:} Rudik Roberto Rompich\\
+   \textbf{E-mail:} \textcolor{blue}{ \href{mailto:rom19857@uvg.edu.gt}{rom19857@uvg.edu.gt}}\\
+   \textbf{Carné:} 19857
+    \end{tabbing}
+    \begin{center}
+        CC2003 - Algoritmos y Estructuras de Datos - Catedrático: Melvin García\\
+        \today
+    \end{center}\\
+    \hline
+    \\
+    \end{tabular} 
+    \vspace*{0.3cm} 
+    \begin{center} 
+    {\Large \bf Proyecto 2 - Sistema de recomendaciones 
+} 
+        \vspace{2mm}
+    \end{center}
+    \vspace{0.4cm}
+%---------------------------
+%\begin{tcolorbox}[colback=gray!15,colframe=black!1!black,title=A nice heading]
+%\end{tcolorbox}
+
+%\fbox{lol}
+%---------------------------
+
+\input{Secciones/Investigacion}
+\input{Secciones/DesignThinking}
+\input{Secciones/Diagramas}
+\input{Secciones/DB}
+
+%---------------------------
+\bibliographystyle{apalike}
+\bibliography{sample.bib}
+
+\end{document}
