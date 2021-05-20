@@ -1,27 +1,40 @@
-from neo4j import GraphDatabase
+from neo4j import GraphDatabase, WRITE_ACCESS
+import Code.Separador as separador
+import Code.DB_Nodos as nodos
+
 
 class HelloWorldExample:
 
     def __init__(self, uri, user, password):
         self.driver = GraphDatabase.driver(uri, auth=(user, password))
 
+    def base(self):
+        session = self.driver.session(default_access_mode=WRITE_ACCESS)
+        noditos = nodos.Nodos().creador_nodos
+        session.run(noditos)
+        with open("Datos.csv") as f:
+            lis = [line.split() for line in f]
+            lis.pop(0)
+            for elemento in lis:
+                Nodo_NIVEL_BLITZ,Nodo_NIVEL_RAPIDAS,Nodo_PARTE_FAVORITA, Nodo_PLATAFORMA,Nodo_APERTURA,Nodo_DEFENSA = \
+                    separador.Separador(elemento[0]).retonar
+                session.run(Nodo_NIVEL_BLITZ)
+                session.run(Nodo_NIVEL_RAPIDAS)
+                session.run(Nodo_PARTE_FAVORITA)
+                session.run(Nodo_PLATAFORMA)
+                session.run(Nodo_APERTURA)
+                session.run(Nodo_DEFENSA)
+        session.run(Nodo_DEFENSA)
+        session.close()
+
+
+
     def close(self):
         self.driver.close()
 
-    def print_greeting(self, message):
-        with self.driver.session() as session:
-            greeting = session.write_transaction(self._create_and_return_greeting, message)
-            print(greeting)
-
-    @staticmethod
-    def _create_and_return_greeting(tx, message):
-        result = tx.run("CREATE (a:Greeting) "
-                        "SET a.message = $message "
-                        "RETURN a.message + ', from node ' + id(a)", message=message)
-        return result.single()[0]
 
 
 if __name__ == "__main__":
     greeter = HelloWorldExample("bolt://localhost:11003", "neo4j", "12345")
-    greeter.print_greeting("hello, world")
+    greeter.base()
     greeter.close()
