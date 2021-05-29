@@ -1,8 +1,23 @@
+"""
+Proyecto final - Algoritmos y Estructuras de Datos - Universidad del Valle de Guatemala
+Carrera: Matemática Aplicada
+Fecha: Junio de 2021
+Autor: Rudik Roberto Rompich
+"""
+
 from neo4j import GraphDatabase, WRITE_ACCESS
-import Code.DB_Nodos as nodos
+from Code.DB_Nodos import Nodos
 
 
 def crear_relacion(usuario, categoria, relacion, nodo):
+    """
+        Método que crea una relación ÚNICA en formato string.
+        :param usuario: usuario
+        :param categoria: categoria
+        :param relacion: relacion
+        :param nodo: nombre del nodo al que se quiere relacionar el usuario.
+        :return: una relacion en string
+        """
     query = f"MATCH ({usuario}:User {{nombre:\"{usuario}\"}}), ({nodo}:{categoria} {{nombre:\"{nodo}\"}}) " \
             f"CREATE ({usuario})-[:{relacion}]->({nodo}) "
     return query
@@ -10,12 +25,21 @@ def crear_relacion(usuario, categoria, relacion, nodo):
 
 class DB:
     def __init__(self, uri, user, password):
+        """
+
+        :param uri: nombre del servidor local de Neo4J
+        :param user: El usuario del servidor (neo4j)
+        :param password: la contraseña del servidor local.
+        """
         self.driver = GraphDatabase.driver(uri, auth=(user, password))
 
     def base(self):
+        """
+        Inicializa la base de datos
+        """
         session = self.driver.session(default_access_mode=WRITE_ACCESS)
-        noditos = nodos.Nodos().creador_nodos()
-        relaciones = nodos.Nodos().relacions_DB_total()
+        noditos = Nodos().creador_nodos()
+        relaciones = Nodos().relacions_DB_total()
         session.run(noditos)
         for usuario in relaciones:
             for relacion in usuario:
@@ -23,18 +47,37 @@ class DB:
         session.close()
 
     def match(self, nodo_nivel_usuario, relacion_modalidad_nivel, relacion_apertura_o_defensa, apertura_defensa_nodo):
+        """
+        Método para crear las relaciones de losnodos.
+        :param nodo_nivel_usuario: NIVEL_BLITZ, NIVEL_RAPIDAS
+        :param relacion_modalidad_nivel: modalidad favorita del usuario.
+        :param relacion_apertura_o_defensa: apertura o defensa del usuario.
+        :param apertura_defensa_nodo: apertura o defnesa del usuario.
+        :return: un string con las relaciones.
+        """
         session = self.driver.session(default_access_mode=WRITE_ACCESS)
-        query = f"MATCH ({nodo_nivel_usuario}:Nivel {{nombre:\"{nodo_nivel_usuario}\"}})<-[:{relacion_modalidad_nivel}]-(User)-[r:{relacion_apertura_o_defensa}]->({apertura_defensa_nodo}) RETURN {apertura_defensa_nodo}.nombre, count(r) AS num ORDER BY num desc"
+        query = f"MATCH ({nodo_nivel_usuario}:Nivel {{nombre:\"{nodo_nivel_usuario}\"}})<-[:{relacion_modalidad_nivel}]-(User)-[r:{relacion_apertura_o_defensa}]->({apertura_defensa_nodo}) RETURN {apertura_defensa_nodo}.nombre, count(r) AS num ORDER BY num desc "
         result = session.run(query)
         vacio = []
         for element in result:
-            vacio.append(element["Apertura.nombre"])
+            vacio.append(element[f"{apertura_defensa_nodo}.nombre"])
         session.close()
         listafinal = ','.join(str(elemento) for elemento in vacio)
         listafinal = listafinal.split(",")
         return listafinal
 
     def queries_user_nuevo(self, USER, NIVEL_BLITZ, NIVEL_RAPIDAS, PARTE_FAVORITA, PLATAFORMA, APERTURA, DEFENSA):
+        """
+
+        :param USER: Usuario
+        :param NIVEL_BLITZ: Nivel de blitz
+        :param NIVEL_RAPIDAS: Nivel de rápidas
+        :param PARTE_FAVORITA: Parte favorita
+        :param PLATAFORMA: Plataforma favorita
+        :param APERTURA: Apertura favorita
+        :param DEFENSA: Defensa favorita
+        :return: Una cada con las instrucciones a crear
+        """
         query_nodo_user: str = f"CREATE ({USER.lower()}:User {{nombre:\"{USER.lower()}\"}})"
         categorias = ["Nivel", "Plataforma", "Apertura", "Defensa", "Favorito"]
         relacions = ["NIVEL_BLITZ", "NIVEL_RAPIDAS", "PARTE_FAVORITA", "PLATAFORMA", "APERTURA", "DEFENSA"]
@@ -47,7 +90,18 @@ class DB:
         return query_nodo_user, query_relacion_nivel_blitz, query_relacion_nivel_rapidas, query_relacion_parte_favorita, query_relacion_plataforma, query_relacion_apertura, query_relacion_defensa
 
     def crear_user(self, USER, NIVEL_BLITZ, NIVEL_RAPIDAS, PARTE_FAVORITA, PLATAFORMA, APERTURA, DEFENSA):
-        query_nodo_user, query_relacion_nivel_blitz, query_relacion_nivel_rapidas, query_relacion_parte_favorita, query_relacion_plataforma, query_relacion_apertura, query_relacion_defensa = self.queries_user_nuevo(USER, NIVEL_BLITZ, NIVEL_RAPIDAS, PARTE_FAVORITA, PLATAFORMA, APERTURA, DEFENSA)
+        """
+        Crea las relaciones de un nuevo usuario en la base de datos.
+        :param USER: Usuario
+        :param NIVEL_BLITZ: Nivel de blitz
+        :param NIVEL_RAPIDAS: Nivel de rápidas
+        :param PARTE_FAVORITA: Parte favorita
+        :param PLATAFORMA: Plataforma favorita
+        :param APERTURA: Apertura favorita
+        :param DEFENSA: Defensa favorita
+        """
+        query_nodo_user, query_relacion_nivel_blitz, query_relacion_nivel_rapidas, query_relacion_parte_favorita, query_relacion_plataforma, query_relacion_apertura, query_relacion_defensa = self.queries_user_nuevo(
+            USER, NIVEL_BLITZ, NIVEL_RAPIDAS, PARTE_FAVORITA, PLATAFORMA, APERTURA, DEFENSA)
 
         session = self.driver.session(default_access_mode=WRITE_ACCESS)
         session.run(query_relacion_apertura)
@@ -60,36 +114,29 @@ class DB:
         session.run(query_relacion_defensa)
         session.close()
 
-
     def borrar_user(self, user):
+        """
+        Borra un usuario insertando su ID.
+        :param user: id del usuario.
+        """
         session = self.driver.session(default_access_mode=WRITE_ACCESS)
         query = f"MATCH (n {{nombre: '{user}'}}) DETACH DELETE n"
         session.run(query)
         session.close()
 
     def borrar_DB(self):
+        """
+        Borra la base de datos.
+        """
         session = self.driver.session(default_access_mode=WRITE_ACCESS)
         query = "MATCH (n) DETACH DELETE n"
         session.run(query)
         session.close()
 
     def close(self):
+        """
+        Cierra el driver.
+        """
         self.driver.close()
 
 
-if __name__ == "__main__":
-    greeter = DB("bolt://localhost:11006", "neo4j", "12345")
-    #greeter.base()
-    # print(greeter.match("principiante", "NIVEL_BLITZ", "APERTURA", "Apertura"))
-    #greeter.borrar_user("user002")
-    #greeter.crear_user("user050", "principiante", "principiante", "final", "chess24", "italiana_espanola", "francesa")
-    #greeter.borrar_DB()
-
-
-    greeter.close()
-
-#print(crear_relacion("USER", "lol", "jaja", "jeje"))
-
-"""
-MATCH (nodo:Nivel {nombre:"principiante"})<-[:NIVEL_BLITZ]-(User)-[r:APERTURA]->(Apertura) RETURN Apertura, count(r) AS num ORDER BY num desc
-"""

@@ -1,9 +1,28 @@
+"""
+Proyecto final - Algoritmos y Estructuras de Datos - Universidad del Valle de Guatemala
+Carrera: Matemática Aplicada
+Fecha: Junio de 2021
+Autor: Rudik Roberto Rompich
+"""
 def creador_nodos_individuales(ID, categoria):
+    """
+    Método para crear una cada para un nodo individual
+    :param ID: el usuario que se quiere crear como nodo
+    :param categoria: la categoria del nodo.
+    :return:
+    """
     comando: str = f"({ID.lower()}:{categoria.capitalize()} {{nombre:\"{ID.lower()}\"}})"
     return comando
 
 
 def lista_nodos(lista, categoria):
+    """
+    Método que crea los nodos para una cada de strings que contienen todos los nodos.
+
+    :param lista: lista con los strings para crear los nodos correspondientes
+    :param categoria: las categorias con las que se quieren relacionar
+    :return:
+    """
     nodos = []
     for elemento in lista:
         nodos.append(creador_nodos_individuales(elemento, categoria))
@@ -11,6 +30,14 @@ def lista_nodos(lista, categoria):
 
 
 def crear_relacion(usuario, categoria, relacion, nodo):
+    """
+    Método que crea una relación ÚNICA en formato string.
+    :param usuario: usuario
+    :param categoria: categoria
+    :param relacion: relacion
+    :param nodo: nombre del nodo al que se quiere relacionar el usuario.
+    :return: una relacion en string
+    """
     query = f"MATCH ({usuario}:User {{nombre:\"{usuario}\"}}), ({nodo}:{categoria} {{nombre:\"{nodo}\"}}) CREATE ({usuario})-[:{relacion}]->({nodo})"
     return query
 
@@ -31,7 +58,13 @@ class Nodos:
         self.CATEGORIAS = ["User", "Nivel", "Plataforma", "Apertura", "Defensa", "Favorito"]
         self.RELACIONES = ["NIVEL_BLITZ", "NIVEL_RAPIDAS", "PARTE_FAVORITA", "PLATAFORMA", "APERTURA",
                            "DEFENSA"]
+
     def creador_nodos(self):
+        """
+        Método que crea nodos de los arrays declarados en __init__
+
+        :return: Cada de string con los nodos.
+        """
         nodos_user = lista_nodos(self.USERS, self.CATEGORIAS[0])
         nodos_nivel = lista_nodos(self.NIVEL, self.CATEGORIAS[1])
         nodos_plataforma = lista_nodos(self.PLATAFORMA, self.CATEGORIAS[2])
@@ -54,6 +87,11 @@ class Nodos:
         return comando_nodos[:-2]
 
     def crear_relacion_individual(self, lista):
+        """
+        Es un método que crea las relaciones de los métodos.
+        :param lista: es la lisa que se inserta del archivo.csv
+        :return: un string con las relaciones de todos los nodos.
+        """
         lista = lista.split(",")
         nuevo = []
         for elemento in lista:
@@ -68,11 +106,15 @@ class Nodos:
         match_plataforma = crear_relacion(lista[0], self.CATEGORIAS[2], self.RELACIONES[3], lista[4])
         match_apertura = crear_relacion(lista[0], self.CATEGORIAS[3], self.RELACIONES[4], lista[5])
         match_defensa = crear_relacion(lista[0], self.CATEGORIAS[4], self.RELACIONES[5], lista[6])
-        relaciones = [match_nivel_blitz, match_nivel_rapidas, match_parte_favorita, match_plataforma, match_apertura, match_defensa]
+        relaciones = [match_nivel_blitz, match_nivel_rapidas, match_parte_favorita, match_plataforma, match_apertura,
+                      match_defensa]
         return relaciones
 
-
     def relacions_DB_total(self):
+        """
+        Método que carga la base de datos.csv y los coloca en el método anterior.
+        :return: las relaciones en formato cadena de strings.
+        """
         with open("Datos.csv") as DB:
             lista = [linea.split() for linea in DB]
             lista.pop(0)
@@ -83,4 +125,3 @@ class Nodos:
                     relaciones.append(self.crear_relacion_individual(strings))
 
         return relaciones
-
