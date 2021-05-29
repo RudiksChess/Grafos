@@ -1,34 +1,49 @@
-from neo4j import GraphDatabase, WRITE_ACCESS
-import Code.DB_Nodos as nodos
+ans=True
 
+while ans:
+    print("""
+        |-----------------------------------CLUB DE AJEDREZ -----------------------------------|
+        |______________________________SISTEMA DE RECOMENDACIONES______________________________|
+        Seleccionar una opción: 
+        1. Entrar al sistema de recomendaciones.
+        2. Configuraciones (solo administradores).
+        3. Salir. 
+        """)
+    ans=int(input("Opción:"))
+    if ans==1:
+        print("""----------------------RESPONDER------------------------------""")
+        print("""¿Nivel de blitz? Considere: 
+                 1. Principiante [0-1400]
+                 2. Intermedio [1400-1600]
+                 3. Avanzado [1600-infinito]
+                 """)
+        blitz= int(input("NIVEL_BLITZ: "))
+        print("""¿Nivel de rápidas? Considere: 
+                         1. Principiante [0-1400]
+                         2. Intermedio [1400-1600]
+                         3. Avanzado [1600-infinito]
+                         """)
+        rapidas = int(input("NIVEL_RÁPIDAS: "))
 
-class DB:
+    elif ans==2:
+      print(""" ------------- CONFIGURACIONES --------------
+      Seleccionar una opción: 
+      1. Agregar a un usuario.
+      2. Borrar a un usuario. 
+      """)
+      configuraciones = int(input("Opción"))
+      if configuraciones == 1:
+          print("----Datos del usuario-----")
+          nivel_blitz = str(input("NIVEL_BLITZ:"))
+          nivel_rapidas = str(input("NIVEL_RAPIDAS:"))
+          parte_favorita = str(input("PARTE_FAVORITA:"))
+          plataforma = str(input("PLATAFORMA:"))
+          apertura = str(input("APERTURA:"))
+          defensa = str(input("DEFENSA:"))
+          print("Usuario creado.")
+      elif configuraciones ==2:
+          id = str(input("¿Cuál es el ID del usuario?"))
+          print("Usuario borrado.")
 
-    def __init__(self, uri, user, password):
-        self.driver = GraphDatabase.driver(uri, auth=(user, password))
-
-    def base(self):
-        session = self.driver.session(default_access_mode=WRITE_ACCESS)
-        noditos = nodos.Nodos().creador_nodos()
-        relaciones = nodos.Nodos().relacions_DB_total()
-        session.run(noditos)
-        for usuario in relaciones:
-            for relacion in usuario:
-                session.run(relacion)
-        session.close()
-
-
-
-    def close(self):
-        self.driver.close()
-
-
-
-if __name__ == "__main__":
-    greeter = DB("bolt://localhost:11006", "neo4j", "12345")
-    greeter.base()
-    greeter.close()
-
-"""
-MATCH (nodo:Nivel {nombre:"principiante"})<-[:NIVEL_BLITZ]-(User)-[r:APERTURA]->(Apertura) RETURN Apertura, count(r) AS num ORDER BY num desc
-"""
+    else:
+        print("Programa cerrado. Base de datos borrada.")
